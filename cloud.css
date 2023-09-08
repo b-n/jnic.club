@@ -1,0 +1,56 @@
+@keyframes drift {
+  0% {
+    left: -400px;
+  }
+
+  50% {
+    left: -200px;
+  }
+
+  100% {
+    left: -400px;
+  }
+}
+
+.cloud-container {
+  position: absolute;
+  top: -200px;
+  left: -400px;
+  animation: drift ease 60s infinite;
+}
+
+.cloud {
+  border-radius: 50%;
+  position: absolute;
+}
+
+.cloud.base {
+  left: -100px;
+  top: 20px;
+  width: 600px;
+  height: 100px;
+  box-shadow: 200px 100px 19px 40px rgba(255, 255, 255, 0.9);
+}
+.cloud.back {
+  left: -100px;
+  top: 20px;
+  width: 500px;
+  height: 30px;
+  box-shadow: 200px 130px 10px 40px rgba(215, 215, 215, 0.3);
+}
+
+.cloud.mid {
+  left: -100px;
+  top: 10px;
+  width: 580px;
+  height: 35px;
+  box-shadow: 210px 180px 28px 30px rgba(66, 105, 146, 0.2);
+}
+
+.cloud.front {
+  left: -20px;
+  top: 0px;
+  width: 450px;
+  height: 40px;
+  box-shadow: 210px 202px 30px 0px rgba(0, 0, 0, 0.4);
+}

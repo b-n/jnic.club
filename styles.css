@@ -1,0 +1,40 @@
+.bg {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content {
+  margin-top: 3rem;
+  padding: 2rem;
+  text-align: center;
+  font-family: Sans-Serif;
+  background-color: #f6f6f6;
+  box-shadow: 2px 2px 3px 2px #aaa;
+}
+
+.tweets {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+a { 
+  color: #33f;
+}

@@ -17,10 +17,7 @@ function shuffle(array) {
 }
 
 function svgProps(width, height) {
-
   return Object.entries({
-    //width: "832.1",
-    //height: "819.3",
     viewBox: `0 0 ${width} ${height}`,
     "xmlns:xlink": "http://www.w3.org/1999/xlink",
     "xmlns": "http://www.w3.org/2000/svg",
@@ -104,7 +101,7 @@ function drawPengu(x, y, scale) {
 `
 }
 
-function drawSVG(elem) {
+function renderSVG() {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
 
@@ -113,14 +110,14 @@ function drawSVG(elem) {
   const penguHSpacing = penguWidth * 0.91;
   const penguVSpacingBase = 200;
 
-  let remainingHeight = windowHeight - penguVSpacingBase;
+  let remainingHeight = windowHeight * 2/3; // - penguVSpacingBase;
+  let yOffset = windowHeight * 1/3;
   let scale = 1;
 
-  let pengus = [];
+  let elems = [];
 
-  // draw off the top of the screen to fill the whole thing
-  //  why -3 *? No idea, the value worked. 
-  while (remainingHeight > -3 * scale * penguVSpacingBase) {
+  //generate the row of pengus, starting from the bottom to the top
+  while (remainingHeight > -1 * scale * penguVSpacingBase) {
     const scaledHSpacing = penguHSpacing * scale;
     const penguCount = Math.floor(windowWidth / scaledHSpacing) + 3;
 
@@ -130,11 +127,12 @@ function drawSVG(elem) {
     const xOffset = scaledHSpacing * (Math.random() - 1.5);
 
     for (i = 0; i < penguCount; i++) {
-      pengusToAdd.push(drawPengu(xOffset + scaledHSpacing * i, remainingHeight, scale))
+      pengusToAdd.push(drawPengu(xOffset + scaledHSpacing * i, yOffset + remainingHeight, scale))
     }
 
     // We shuffle so we don't always render left to right
-    pengus = pengus.concat(shuffle(pengusToAdd));
+    elems = elems.concat(shuffle(pengusToAdd));
+    elems.push(`<rect x="0" y="0" width="${windowWidth}" height="${yOffset + remainingHeight + penguVSpacingBase}" fill="white" fill-opacity="0.02"/>`)
     
     // scale the next row
     remainingHeight -= penguVSpacingBase * scale; 
@@ -147,9 +145,9 @@ function drawSVG(elem) {
   }
 
   // reverse the order of the pengus, we render from back to smallest to largest.
-  pengus.reverse();
+  elems.reverse();
 
-  elem.innerHTML = `
+  return `
 <svg ${svgProps(windowWidth, windowHeight)}>
   <defs>
      <linearGradient id="a">
@@ -158,11 +156,83 @@ function drawSVG(elem) {
     </linearGradient>
     <linearGradient xlink:href="#a" id="e" x1="-110.1" y1="92.4" x2="-104.7" y2="415.5" gradientUnits="userSpaceOnUse"/>
   </defs>
-  ${pengus.join("\n")}
+  <rect x="0" y="0" width="${windowWidth}" height="${windowHeight}" fill="#B3E5FC" />
+  <rect x="0" y="${windowHeight * 1/3 - remainingHeight}" width="${windowWidth}" height="${windowHeight * 2/3 + remainingHeight}" fill="#0c0c0c" />
+  ${elems.join("\n")}
 </svg>
   `;
 }
 
+function cloudFilter(id) {
+  const seed = Math.floor(Math.random() * 10000);
+  return`
+    <filter id="cloud-base-${id}">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="5" seed="${seed}" />     
+      <feDisplacementMap  in="SourceGraphic" scale="120" />
+    </filter>
+    <filter id="cloud-back-${id}">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="3" seed="${seed}" />     
+      <feDisplacementMap  in="SourceGraphic" scale="120" />
+    </filter>
+    <filter id="cloud-mid-${id}">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="3" seed="${seed}"/>
+      <feDisplacementMap  in="SourceGraphic" scale="120" />
+    </filter>
+    <filter id="cloud-front-${id}">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="4" seed="${seed}"/>
+      <feDisplacementMap  in="SourceGraphic" scale="50" />
+    </filter>
+  `
+}
+
+function drawCloud(id, translate, scale, startDelay) {
+  return `
+    <div class="cloud-container" style="animation-delay: ${startDelay}s; transform: translate(${translate}) scale(${scale})">
+      <div class="cloud base" style="filter: url(#cloud-base-${id})"></div>
+      <div class="cloud back" style="filter: url(#cloud-back-${id})"></div>
+      <div class="cloud mid" style="filter: url(#cloud-mid-${id})"></div>
+      <div class="cloud front" style="filter: url(#cloud-front-${id})"></div>
+    </div>
+  `
+}
+
+function renderClouds() {
+  // Between 4 and 6 clouds
+  const cloudCount = Math.floor(Math.random() * 3) + 4;
+
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  const animationLength = 35;
+
+  // Desired window width for full size clouds is 1800px;
+  const cloudScale = windowWidth / 1800;
+
+  const filters = []
+  const clouds = []
+
+  for (let i = 0; i < cloudCount; i++) {
+    // push cloud random seeds
+    filters.push(cloudFilter(i));
+
+    // generate the actual clouds
+    const cloudX = Math.floor(windowWidth * Math.random());
+    const cloudY = Math.floor(windowHeight * 1/4 * Math.random());
+    const cloudTranslate = `${cloudX}px, ${cloudY}px`;
+    const startDelay = -1 * Math.floor(animationLength * Math.random());
+
+    clouds.push(drawCloud(i, cloudTranslate, cloudScale, startDelay));
+  }
+
+  return `
+  <div class="clouds">
+    <svg width="0" height="0">
+      ${filters.join("\n")}
+    </svg>
+    ${clouds.join("\n")}
+  </div>`
+}
+
 window.addEventListener("DOMContentLoaded", function() {
-  drawSVG(document.getElementById("bg"))
+  const elem = document.getElementsByClassName("bg")[0];
+  elem.innerHTML = `${renderSVG()}${renderClouds()}`;
 })
