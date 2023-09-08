@@ -216,7 +216,7 @@ function renderClouds() {
 
     // generate the actual clouds
     const cloudX = Math.floor(windowWidth * Math.random());
-    const cloudY = Math.floor(windowHeight * 1/4 * Math.random());
+    const cloudY = Math.floor(windowHeight * 1/5 * Math.random());
     const cloudTranslate = `${cloudX}px, ${cloudY}px`;
     const startDelay = -1 * Math.floor(animationLength * Math.random());
 
